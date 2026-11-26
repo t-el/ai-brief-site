@@ -1,15 +1,12 @@
 ---
-title: "Advertise / Sponsor"
-description: "Sponsor AI Brief Daily and reach readers who follow AI every day."
+title: "Advertise"
+description: "Sponsor a report or advertise on AI Brief Daily."
 url: "/advertise/"
 ShowToc: false
 hideMeta: true
+hiddenInRss: true
 ---
 
-AI Brief Daily reaches developers, founders and operators who read about AI every morning.
+AI Brief Daily publishes a sourced report every morning on the AI stories that matter.
 
-- **Daily sponsor slot** — one sponsor block under the report and in the newsletter.
-- **Weekly package** — 7 consecutive daily slots.
-- **Tool listing** — a permanent line in "Tools we use".
-
-Contact: `hello@example.com` *(placeholder — replace with your address)*.
+If you would like to sponsor a report or advertise here, email [elkarroumytaha@gmail.com](mailto:elkarroumytaha@gmail.com). Include a short note about who you are and what you'd like to promote, and we will get back to you.
