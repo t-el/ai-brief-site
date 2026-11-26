@@ -1,0 +1,135 @@
+# ─────────────────────────────────────────────────────────────
+#  AI Brief Daily — Hugo config
+#  Rename the site: change `title` + params.brand below.
+#  baseURL is overridden in CI by actions/configure-pages output.
+# ─────────────────────────────────────────────────────────────
+baseURL = "https://t-el.github.io/ai-brief-site/"
+title = "AI Brief Daily"
+theme = "PaperMod"
+locale = "en-US"
+defaultContentLanguage = "en"
+timeZone = "Africa/Casablanca"
+enableRobotsTXT = true
+enableGitInfo = false
+buildDrafts = false
+buildFuture = false
+summaryLength = 40
+copyright = "© AI Brief Daily"
+
+[pagination]
+  pagerSize = 10
+
+[minify]
+  disableXML = true
+  minifyOutput = true
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+  section = ["HTML", "RSS"]
+  taxonomy = ["HTML", "RSS"]
+  term = ["HTML", "RSS"]
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[permalinks]
+  [permalinks.page]
+    reports = "/reports/:year/:month/:day/"
+
+[sitemap]
+  changeFreq = "daily"
+  priority = 0.5
+  filename = "sitemap.xml"
+
+[services]
+  [services.rss]
+    limit = 50
+  [services.googleAnalytics]
+    ID = ""            # e.g. "G-XXXXXXX" — leave empty to disable
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = false
+  [markup.highlight]
+    noClasses = false
+
+[params]
+  env = "production"          # enables OpenGraph / Twitter cards / schema.org in PaperMod
+  description = "Deep, sourced daily reports on what actually happened in AI — and why it matters."
+  keywords = ["AI news", "artificial intelligence", "LLM", "daily AI brief", "AI deep dive"]
+  author = "AI Brief Daily"
+  images = ["images/og-default.png"]   # default OpenGraph image (put a 1200x630 png in static/images/)
+  DateFormat = "January 2, 2006"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShareButtons = ["x", "linkedin", "reddit", "whatsapp", "telegram"]
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  TocOpen = false
+  ShowRssButtonInSectionTermList = true
+  disableSpecial1stPost = false
+  mainSections = ["reports"]
+
+  [params.homeInfoParams]
+    Title = "AI Brief Daily"
+    Content = "Every morning: the AI stories that matter, explained in depth with sources. No hype, no fluff."
+
+  [[params.socialIcons]]
+    name = "rss"
+    url = "/index.xml"
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/t-el"
+
+  [params.fuseOpts]
+    keys = ["title", "summary", "content"]
+
+  # ── Monetization placeholders (all off until you fill them) ──
+  [params.monetization]
+    # Google AdSense publisher id, e.g. "ca-pub-1234567890". Empty = no ad script.
+    adsenseClient = ""
+    adsenseSlotInArticle = ""
+    # Newsletter: paste your Beehiiv / Buttondown / ConvertKit / MailerLite form action URL.
+    newsletterAction = ""
+    newsletterProvider = "Buttondown"
+    newsletterCTA = "Get the brief in your inbox every morning — free."
+    # Sponsor / affiliate block shown under each report
+    showSponsor = true
+    sponsorText = "Your product here — reach readers who follow AI daily."
+    sponsorURL = "/advertise/"
+    # Affiliate links (rendered as 'Tools we use'); add/remove freely.
+    [[params.monetization.affiliates]]
+      name = "Example AI tool"
+      url = "https://example.com/?ref=aibriefdaily"
+      blurb = "Placeholder — replace with a real affiliate link."
+
+[menu]
+  [[menu.main]]
+    identifier = "reports"
+    name = "Reports"
+    url = "/reports/"
+    weight = 10
+  [[menu.main]]
+    identifier = "tags"
+    name = "Tags"
+    url = "/tags/"
+    weight = 20
+  [[menu.main]]
+    identifier = "archives"
+    name = "Archive"
+    url = "/archives/"
+    weight = 30
+  [[menu.main]]
+    identifier = "search"
+    name = "Search"
+    url = "/search/"
+    weight = 40
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 50
