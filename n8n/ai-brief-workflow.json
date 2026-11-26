@@ -1,0 +1,411 @@
+{
+  "name": "AI Brief Daily: RSS → LLM deep report → GitHub (Hugo)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "8458c8ae-1df9-488a-8245-95b988d88496",
+      "name": "Daily 07:00 Casablanca",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e902d39-847c-4e8e-8e0e-6c6ed6846d75",
+              "name": "llmBaseUrl",
+              "value": "https://api.openai.com/v1",
+              "type": "string"
+            },
+            {
+              "id": "a2f71d8f-2142-4047-bd51-b31e166f67ca",
+              "name": "model",
+              "value": "gpt-4.1",
+              "type": "string"
+            },
+            {
+              "id": "39d42952-12d1-4e43-85db-b75f8cd233b2",
+              "name": "temperature",
+              "value": 0.3,
+              "type": "number"
+            },
+            {
+              "id": "7dca1bda-3e88-4eeb-8236-3f19cf538ad2",
+              "name": "maxTokens",
+              "value": 6000,
+              "type": "number"
+            },
+            {
+              "id": "26d3672e-2c63-4711-8468-20daea35f7c8",
+              "name": "lookbackHours",
+              "value": 24,
+              "type": "number"
+            },
+            {
+              "id": "6cbc5011-48ec-4dca-a39f-4b81291b90a3",
+              "name": "maxItems",
+              "value": 60,
+              "type": "number"
+            },
+            {
+              "id": "699b5533-6b00-426f-8a62-1af43590c750",
+              "name": "timezone",
+              "value": "Africa/Casablanca",
+              "type": "string"
+            },
+            {
+              "id": "8b51bf6f-a13d-406f-acc3-0368ba7c8741",
+              "name": "githubOwner",
+              "value": "t-el",
+              "type": "string"
+            },
+            {
+              "id": "4b73bd1f-b4d9-4aa1-8533-c1834d4a10ac",
+              "name": "githubRepo",
+              "value": "ai-brief-site",
+              "type": "string"
+            },
+            {
+              "id": "1b13b27b-84e7-46f2-b501-a2e9a7a9c6d4",
+              "name": "githubBranch",
+              "value": "main",
+              "type": "string"
+            },
+            {
+              "id": "7a85f9e8-a990-44d8-9cc6-ff82f8f60dbf",
+              "name": "contentDir",
+              "value": "content/reports",
+              "type": "string"
+            },
+            {
+              "id": "efdf7980-ead0-4927-9623-c62f0e1a02f9",
+              "name": "systemPrompt",
+              "value": "You are the senior editor of \"AI Brief Daily\", a sourced, skeptical daily AI news site.\nYou receive a JSON list of news items from the last 24 hours (title, link, source, published, snippet).\nWrite ONE daily deep report in Markdown with Hugo YAML front matter, following the STYLE GUIDE below exactly.\n\nHard rules:\n- Output ONLY the Markdown file content, starting with the line '---'. No code fences, no commentary.\n- Use ONLY facts present in the provided items. Never invent numbers, quotes, dates, people or URLs.\n- Every link you output must be one of the provided item links.\n- Pick the 4-6 most important stories (dedupe items covering the same event; cite all of them under that story).\n- Prefer primary sources (lab blogs, papers) and say \"X says...\" for company claims.\n- No raw HTML. Plain English, no hype words.\n- Front matter 'date' and 'lastmod' must equal the REPORT_DATETIME given by the user; title must start with 'AI Brief — <REPORT_DATE_HUMAN>:'.\n- categories must be exactly [\"Daily Report\"]. draft: false.\n\nSTYLE GUIDE:\n# AI Brief Daily: Report Style Guide\n\nThis is the spec every daily report must follow, whether it's written by the Grok Bot routine (main path) or by the n8n workflow (optional). If it's not in this file, it's not part of the format.\n\n## 1. File\n\n- Path: `content/reports/YYYY-MM-DD.md` (date in **Africa/Casablanca**, the morning of publication).\n- One report per day. If the file already exists, overwrite it instead of creating a second one.\n- UTF-8, LF line endings, no raw HTML (Goldmark `unsafe = false` strips it).\n\n## 2. Front matter (YAML, exact keys)\n\n```yaml\n---\ntitle: \"AI Brief — Nov 26, 2026: <3 biggest stories, ≤ 110 chars total>\"\ndate: 2026-11-26T07:00:00+00:00        # ISO 8601 with offset; Casablanca is +00:00 / +01:00 during summer time\nlastmod: 2026-11-26T07:00:00+00:00\ndescription: \"<140–160 char SEO summary naming the top 3–4 stories>\"\nsummary: \"<1 sentence, ≤ 200 chars, shown on list pages>\"\ntags: [\"OpenAI\", \"Anthropic\", \"AI agents\"]   # 5–10, Title Case for orgs/products, reuse existing tags\ncategories: [\"Daily Report\"]                 # always exactly this\nkeywords: [\"<3–6 search phrases>\"]\nShowToc: true\nTocOpen: false\ndraft: false\n---\n```\n\nRules: `date` must not be in the future at build time (Hugo skips future posts). Quote every string. No trailing commas.\n\n## 3. Body: section order (H2 headings, exact text)\n\n1. `## TL;DR`: 4–6 bullets, one per story, **bold the actor** and keep each bullet to one sentence with the key number or date.\n2. `## Top stories`: 4–6 stories, ranked by importance. Each story:\n   ```markdown\n   ### N. <Plain headline, no clickbait>\n\n   **What happened.** 2–4 sentences: who, what, when, key numbers. Facts only, all from the sources.\n\n   **Why it matters.** 2–4 sentences: impact for builders, businesses or users, including any caveat.\n\n   **Sources:** [Publisher](url) · [Publisher](url)\n   ```\n3. `## Deep dive: <theme>`: 300–500 words on the single most consequential story or a trend that links several stories. Suggested structure: context → what changes (numbered list) → the catch → \"What to do now\".\n4. `## Sources`: full list, `- Publisher — [Title](url) (Mon D, YYYY)`.\n5. Closing italic line: `*This report was drafted with AI assistance from the sources above and reviewed for accuracy. Figures are as reported by the cited sources.*`\n\n## 4. Story selection\n\n- Only news from the **last 24–36 hours**. Older items are allowed only as context.\n- Priority: frontier model/product launches > major research results > policy/regulation/export controls > big funding/M&A (≥ $100M) > notable open-source releases > robotics/hardware.\n- Mix it up: no more than 2 stories about the same company.\n- Skip: rumors with no primary or reputable source, pure stock-price moves, listicles, sponsored posts.\n\n## 5. Sourcing & accuracy\n\n- Every story needs **≥ 1 primary source** (company blog, paper, filing, official docs) when one exists, plus up to 2 reputable secondary sources.\n- Never invent numbers, quotes, dates or URLs. If a figure isn't in a source, leave it out.\n- Label claims as claims (\"OpenAI says…\") when only the company reports them.\n- Link to canonical URLs (no tracking params, no Google AMP).\n\n## 6. Voice\n\n- Plain English, short sentences, active voice. Explain jargon on first use.\n- Neutral and skeptical: no hype words (\"revolutionary\", \"game-changing\", \"insane\").\n- Readers are developers, founders and operators, so make \"why it matters\" practical.\n- Length: 1,200–2,000 words total.\n\n## 7. Publishing checklist\n\n- [ ] Filename date = front matter date (Casablanca)\n- [ ] 4–6 stories, each with What happened / Why it matters / Sources\n- [ ] All links resolve; no raw HTML\n- [ ] `hugo --minify` builds with no errors\n- [ ] Commit message: `report: YYYY-MM-DD`, pushed to `main` (this triggers the Pages deploy)\n\nReference example: `content/reports/2026-11-26.md`.\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0c052511-6d1f-4d6b-bb02-d31615bad36e",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "notes": "Edit here: LLM base URL (any OpenAI-compatible endpoint, e.g. OpenAI, OpenRouter, Groq, xAI, DeepSeek, local), model, repo owner/name."
+    },
+    {
+      "parameters": {
+        "jsCode": "const feeds = [\n  {\n    \"source\": \"OpenAI News\",\n    \"url\": \"https://openai.com/news/rss.xml\",\n    \"max\": 10\n  },\n  {\n    \"source\": \"Google DeepMind Blog\",\n    \"url\": \"https://deepmind.google/blog/rss.xml\",\n    \"max\": 10\n  },\n  {\n    \"source\": \"Google AI (The Keyword)\",\n    \"url\": \"https://blog.google/technology/ai/rss/\",\n    \"max\": 10\n  },\n  {\n    \"source\": \"Hugging Face Blog\",\n    \"url\": \"https://huggingface.co/blog/feed.xml\",\n    \"max\": 10\n  },\n  {\n    \"source\": \"TechCrunch AI\",\n    \"url\": \"https://techcrunch.com/category/artificial-intelligence/feed/\",\n    \"max\": 15\n  },\n  {\n    \"source\": \"The Verge AI\",\n    \"url\": \"https://www.theverge.com/rss/ai-artificial-intelligence/index.xml\",\n    \"max\": 15\n  },\n  {\n    \"source\": \"MIT Technology Review AI\",\n    \"url\": \"https://www.technologyreview.com/topic/artificial-intelligence/feed\",\n    \"max\": 10\n  },\n  {\n    \"source\": \"Hacker News (AI, 100+ pts)\",\n    \"url\": \"https://hnrss.org/newest?q=AI+OR+LLM+OR+OpenAI+OR+Anthropic+OR+Gemini&points=100\",\n    \"max\": 15\n  },\n  {\n    \"source\": \"arXiv cs.AI\",\n    \"url\": \"https://rss.arxiv.org/rss/cs.AI\",\n    \"max\": 5\n  }\n];\nreturn feeds.map(f => ({ json: f }));\n"
+      },
+      "id": "b329b609-303a-47e6-9d21-e5bb9189fe9f",
+      "name": "RSS Feed List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "notes": "Add/remove feeds here. 'max' caps items per source."
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "ignoreSSL": false
+        }
+      },
+      "id": "1d2ca763-8055-4eae-b482-f8278ca7be6e",
+      "name": "Read RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "notes": "One request per feed. A failing feed doesn't stop the run."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge all feed items, keep last N hours, dedupe, rank, cap, then build the LLM request body.\nconst cfg = $('Config').first().json;\nconst feeds = $('RSS Feed List').all().map(i => i.json);\nconst hours = Number(cfg.lookbackHours) || 24;\nconst cutoff = Date.now() - hours * 3600 * 1000;\n\nconst rssItems = $input.all()\n  .map(i => ({ ...i.json, _feedIdx: i.pairedItem && typeof i.pairedItem.item === 'number' ? i.pairedItem.item : -1 }))\n  .filter(j => j && (j.link || j.guid));\n\n// Map each item back to its feed via n8n pairedItem; fall back to hostname matching.\nconst host = u => { try { return new URL(u).hostname.replace(/^www\\./, ''); } catch (e) { return ''; } };\nconst feedFor = link => feeds.find(f => host(link).endsWith(host(f.url).replace(/^(rss|news)\\./, ''))) || { source: host(link), max: 10 };\n\nconst norm = s => (s || '').toLowerCase().replace(/https?:\\/\\/(www\\.)?/, '').replace(/[?#].*$/, '').replace(/[^a-z0-9]+/g, ' ').trim();\nconst seenLinks = new Set(), seenTitles = new Set(), perSource = {};\nconst out = [];\n\nfor (const j of rssItems) {\n  const link = (j.link || j.guid || '').trim();\n  const ts = Date.parse(j.isoDate || j.pubDate || '');\n  if (!link || isNaN(ts) || ts < cutoff) continue;\n  const lk = norm(link), tk = norm(j.title).split(' ').slice(0, 10).join(' ');\n  if (seenLinks.has(lk) || (tk && seenTitles.has(tk))) continue;\n  const f = feeds[j._feedIdx] || feedFor(link);\n  perSource[f.source] = (perSource[f.source] || 0) + 1;\n  if (perSource[f.source] > f.max) continue;\n  seenLinks.add(lk); if (tk) seenTitles.add(tk);\n  const snippet = (j.contentSnippet || j.content || j.summary || '').replace(/\\s+/g, ' ').slice(0, 600);\n  out.push({ title: (j.title || '').trim(), link, source: f.source, published: new Date(ts).toISOString(), snippet });\n}\n\nout.sort((a, b) => b.published.localeCompare(a.published));\nconst items = out.slice(0, Number(cfg.maxItems) || 60);\nif (items.length < 4) throw new Error(`Only ${items.length} fresh items in the last ${hours}h, skipping today's report.`);\n\n// Report date in Africa/Casablanca\nconst tz = cfg.timezone || 'Africa/Casablanca';\nconst parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'longOffset' })\n  .formatToParts(new Date()).map(p => [p.type, p.value]));\nconst reportDate = `${parts.year}-${parts.month}-${parts.day}`;\nlet offset = (parts.timeZoneName || 'GMT').replace('GMT', '') || '+00:00';\nif (!offset.includes(':')) offset = '+00:00';\nconst reportDateTime = `${reportDate}T${parts.hour}:${parts.minute}:00${offset}`;\nconst human = new Date(`${reportDate}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });\n\nconst body = {\n  model: cfg.model,\n  temperature: Number(cfg.temperature) || 0.3,\n  max_tokens: Number(cfg.maxTokens) || 6000,\n  messages: [\n    { role: 'system', content: cfg.systemPrompt },\n    { role: 'user', content: `REPORT_DATE: ${reportDate}\\nREPORT_DATE_HUMAN: ${human}\\nREPORT_DATETIME: ${reportDateTime}\\n\\nNEWS ITEMS (${items.length}) as JSON:\\n${JSON.stringify(items, null, 1)}` }\n  ]\n};\n\nreturn [{ json: { reportDate, reportDateTime, itemCount: items.length, body } }];\n"
+      },
+      "id": "d5dc1e55-820a-4b7f-adf1-7fe419dbb94a",
+      "name": "Merge, Dedupe & Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.llmBaseUrl.replace(/\\/$/, '') }}/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 240000
+        }
+      },
+      "id": "0b78e468-4330-432e-af01-3a25699fa217",
+      "name": "LLM: Write Deep Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_LLM_CREDENTIAL_ID",
+          "name": "LLM API key (Header Auth)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "notes": "Header Auth credential: Name = Authorization, Value = Bearer YOUR_API_KEY"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the markdown, sanity-check it, and build the GitHub Contents API payload.\nconst cfg = $('Config').first().json;\nconst meta = $('Merge, Dedupe & Build Prompt').first().json;\nconst res = $input.first().json;\n\nlet md = (res.choices && res.choices[0] && res.choices[0].message && res.choices[0].message.content) || '';\nmd = md.trim().replace(/^```(?:markdown|md)?\\s*\\n/i, '').replace(/\\n```\\s*$/, '').trim() + '\\n';\n\nconst required = ['## TL;DR', '## Top stories', '## Deep dive', '## Sources'];\nconst missing = required.filter(h => !md.includes(h));\nif (!md.startsWith('---')) missing.push('front matter');\nif (/^draft:\\s*true/m.test(md)) missing.push('draft must be false');\nif (missing.length) throw new Error('LLM output failed format check: ' + missing.join(', '));\n\nconst path = `${cfg.contentDir}/${meta.reportDate}.md`;\nreturn [{ json: {\n  path,\n  apiUrl: `https://api.github.com/repos/${cfg.githubOwner}/${cfg.githubRepo}/contents/${path}`,\n  message: `report: ${meta.reportDate}`,\n  contentBase64: Buffer.from(md, 'utf8').toString('base64'),\n  branch: cfg.githubBranch,\n  markdown: md\n} }];\n"
+      },
+      "id": "543f50b9-29ba-49a4-bd3a-f68bf63169ca",
+      "name": "Validate & Prepare File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.apiUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ref",
+              "value": "={{ $json.branch }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "User-Agent",
+              "value": "ai-brief-n8n"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "4656bee2-95e0-4322-af95-e4c0699cb16c",
+      "name": "GitHub: Get Existing File SHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub fine-grained token (Header Auth)"
+        }
+      },
+      "notes": "404 = new file (normal). 200 = file exists, so its sha is reused to overwrite."
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Validate & Prepare File').first().json.apiUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "User-Agent",
+              "value": "ai-brief-n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(Object.assign({ message: $('Validate & Prepare File').first().json.message, content: $('Validate & Prepare File').first().json.contentBase64, branch: $('Validate & Prepare File').first().json.branch, committer: { name: 'AI Brief Bot', email: 'ai-brief-bot@users.noreply.github.com' } }, ($json.statusCode === 200 && $json.body && $json.body.sha) ? { sha: $json.body.sha } : {})) }}",
+        "options": {}
+      },
+      "id": "ed778ef3-6158-47e4-aedb-e4ed72fbd2cc",
+      "name": "GitHub: Commit Report to main",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub fine-grained token (Header Auth)"
+        }
+      },
+      "notes": "Header Auth credential: Name = Authorization, Value = Bearer github_pat_... (fine-grained, this repo only, Contents: Read and write). The push to main triggers the GitHub Pages deploy."
+    }
+  ],
+  "connections": {
+    "Daily 07:00 Casablanca": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed List": {
+      "main": [
+        [
+          {
+            "node": "Read RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge, Dedupe & Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge, Dedupe & Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM: Write Deep Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Write Deep Report": {
+      "main": [
+        [
+          {
+            "node": "Validate & Prepare File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Prepare File": {
+      "main": [
+        [
+          {
+            "node": "GitHub: Get Existing File SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub: Get Existing File SHA": {
+      "main": [
+        [
+          {
+            "node": "GitHub: Commit Report to main",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Casablanca",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "active": false,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
