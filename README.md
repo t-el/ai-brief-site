@@ -90,7 +90,7 @@ The placeholders live in `[params.monetization]` in `hugo.toml`. Each one stays 
 2. **Sponsorships.** Once you have about 1–2k subscribers, sell a daily sponsor slot. `showSponsor`, `sponsorText` and `sponsorURL` point to `/advertise/` (edit `content/advertise.md`). Niche AI newsletters often charge per-send rates based on CPM.
 3. **Affiliates.** Add real referral links in `[[params.monetization.affiliates]]` (AI tools, hosting, courses). They're marked `rel="sponsored"` and come with a disclosure line.
 4. **Display ads.** Apply for Google AdSense once you have about 20–30 quality posts, then set `adsenseClient` and `adsenseSlotInArticle`. Later, Ezoic or Mediavine pay more at higher traffic.
-5. **SEO basics.** Keep descriptive titles and descriptions (the style guide enforces this), submit `sitemap.xml` to Google Search Console and Bing Webmaster Tools, replace the generated default share image by committing your own 1200×630 `static/images/og-default.png` (CI generates a plain placeholder in the deploy workflow if you don't, see `deploy.yml`), and share each report on X and LinkedIn.
+5. **SEO basics.** Keep descriptive titles and descriptions (the style guide enforces this), submit `sitemap.xml` to Google Search Console and Bing Webmaster Tools, add a default share image: commit a 1200×630 `static/images/og-default.png` and uncomment `images` in `hugo.toml` (reports can also set their own `cover.image`), and share each report on X and LinkedIn.
 6. **Quality > volume.** Google penalizes thin, mass-produced AI content. The deep-dive section, the real sources and the "why it matters" analysis are what make these pages worth ranking. Skim each report before it goes out, at least in the first weeks.
 
 ## Renaming the site

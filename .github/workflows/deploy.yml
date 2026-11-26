@@ -50,15 +50,6 @@ jobs:
           ref: 118119693d8b5ac211b939775678310973bcb232
           path: themes/PaperMod
 
-      - name: Generate default OpenGraph image
-        run: |
-          mkdir -p static/images
-          if [ -f static/images/og-default.png ]; then exit 0; fi
-          convert -size 1200x630 xc:'#111827' \
-            -fill white -font DejaVu-Sans-Bold -pointsize 92 -annotate +80+300 'AI Brief Daily' \
-            -fill '#cbd5e1' -pointsize 44 -annotate +80+390 'Deep, sourced daily reports on AI' \
-            -fill '#6366f1' -draw 'rectangle 0,600 1200,630' static/images/og-default.png
-
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v6
