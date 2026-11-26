@@ -1,45 +1,39 @@
+{{- /* Money blocks: render only when configured. Never output setup notes or placeholders. */ -}}
 {{- if eq .Section "reports" }}
-{{- $m := site.Params.monetization }}
+{{- $m := site.Params.monetization | default dict }}
+{{- $ad := and ($m.adsenseClient | default "") ($m.adsenseSlotInArticle | default "") }}
+{{- $nl := $m.newsletterAction | default "" }}
+{{- $sp := and ($m.sponsorText | default "") ($m.sponsorURL | default "") }}
+{{- $af := $m.affiliates | default slice }}
+{{- if or $ad $nl $sp $af }}
 <aside class="mz-wrap" aria-label="Support this site">
-
-  {{- /* 1. In-article ad slot */}}
-  {{- if and $m.adsenseClient $m.adsenseSlotInArticle }}
+  {{- if $ad }}
   <div class="mz-ad">
     <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article"
       data-ad-format="fluid" data-ad-client="{{ $m.adsenseClient }}" data-ad-slot="{{ $m.adsenseSlotInArticle }}"></ins>
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
-  {{- else }}
-  <!-- AD SLOT (in-article): set params.monetization.adsenseClient + adsenseSlotInArticle in hugo.toml -->
   {{- end }}
-
-  {{- /* 2. Newsletter signup */}}
+  {{- if $nl }}
   <div class="mz-box mz-newsletter">
-    <h3>📬 {{ $m.newsletterCTA | default "Get the brief by email" }}</h3>
-    {{- with $m.newsletterAction }}
-    <form action="{{ . }}" method="post" target="_blank" class="mz-form">
+    <h3>{{ $m.newsletterCTA | default "Get the brief by email" }}</h3>
+    <form action="{{ $nl }}" method="post" target="_blank" class="mz-form">
       <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
       <button type="submit">Subscribe</button>
     </form>
-    {{- else }}
-    <p class="mz-muted">Newsletter coming soon. (Placeholder: set <code>params.monetization.newsletterAction</code> to your {{ $m.newsletterProvider }} form URL.)</p>
-    {{- end }}
   </div>
-
-  {{- /* 3. Sponsor block */}}
-  {{- if $m.showSponsor }}
+  {{- end }}
+  {{- if $sp }}
   <div class="mz-box mz-sponsor">
     <span class="mz-label">Sponsor</span>
     <p><a href="{{ $m.sponsorURL | relLangURL }}" rel="sponsored">{{ $m.sponsorText }}</a></p>
   </div>
   {{- end }}
-
-  {{- /* 4. Affiliate tools */}}
-  {{- with $m.affiliates }}
+  {{- if $af }}
   <div class="mz-box mz-affiliates">
     <span class="mz-label">Tools we use</span>
     <ul>
-      {{- range . }}
+      {{- range $af }}
       <li><a href="{{ .url }}" rel="sponsored nofollow noopener" target="_blank">{{ .name }}</a> — {{ .blurb }}</li>
       {{- end }}
     </ul>
@@ -47,4 +41,5 @@
   </div>
   {{- end }}
 </aside>
+{{- end }}
 {{- end }}
