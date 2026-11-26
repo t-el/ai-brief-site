@@ -14,7 +14,7 @@ Report writer ──commit content/reports/YYYY-MM-DD.md──▶ main ──▶
 
 | Path | What it does |
 |---|---|
-| `hugo.toml` | Site config: name, SEO, menus, monetization placeholders. **Rename the site here** (`title`, `params.homeInfoParams`, `params.author`, `copyright`). |
+| `hugo.toml` | Site config: name, SEO, menus, monetization settings (empty = hidden on the public site). **Rename the site here** (`title`, `params.homeInfoParams`, `params.author`, `copyright`). |
 | `themes/PaperMod/` | [PaperMod](https://github.com/adityatelange/hugo-PaperMod) theme. CI checks it out from upstream pinned to commit `1181196`; it is not stored in this repo (gitignored). Fast, no JS framework, dark/light modes, search, OpenGraph/Twitter/schema.org built in. |
 | `content/reports/` | Daily deep reports. `2026-11-26.md` is a real sample. |
 | `docs/report-style.md` | **The report spec**: front matter, section order, sourcing rules, voice, checklist. Both writers follow it. |
@@ -84,12 +84,12 @@ hugo --minify           # production build into ./public
 
 ## Monetization notes
 
-The placeholders live in `[params.monetization]` in `hugo.toml`. Each one stays hidden or shows a placeholder until you fill it in.
+Settings live in `[params.monetization]` in `hugo.toml`. **The public site renders a block only when that field is actually filled in.** Leave a value empty and that block outputs nothing — no “coming soon”, no config snippets, no example links. The contact page for sponsorships is `/advertise/` (`content/advertise.md`).
 
-1. **Newsletter first** (the biggest long-term asset). Create a free list on Beehiiv, Buttondown, ConvertKit or MailerLite and paste the form action URL into `newsletterAction`. Beehiiv also has a built-in ad network and a referral program. Republish each report as the daily email.
-2. **Sponsorships.** Once you have about 1–2k subscribers, sell a daily sponsor slot. `showSponsor`, `sponsorText` and `sponsorURL` point to `/advertise/` (edit `content/advertise.md`). Niche AI newsletters often charge per-send rates based on CPM.
-3. **Affiliates.** Add real referral links in `[[params.monetization.affiliates]]` (AI tools, hosting, courses). They're marked `rel="sponsored"` and come with a disclosure line.
-4. **Display ads.** Apply for Google AdSense once you have about 20–30 quality posts, then set `adsenseClient` and `adsenseSlotInArticle`. Later, Ezoic or Mediavine pay more at higher traffic.
+1. **Newsletter first** (the biggest long-term asset). Create a free list on Beehiiv, Buttondown, ConvertKit or MailerLite and paste the form action URL into `newsletterAction` (and optionally `newsletterCTA`). Beehiiv also has a built-in ad network and a referral program. Republish each report as the daily email.
+2. **Sponsorships.** Once you have a real offer, set `sponsorText` and `sponsorURL` (usually `/advertise/`). Until both are set, no sponsor box appears under reports. The Advertise page itself is always public and points to `elkarroumytaha@gmail.com`.
+3. **Affiliates.** Add real referral links as `[[params.monetization.affiliates]]` entries (`name`, `url`, `blurb`). They're marked `rel="sponsored"` and come with a disclosure line. Add none, and the “Tools we use” box stays off.
+4. **Display ads.** Apply for Google AdSense once you have about 20–30 quality posts, then set both `adsenseClient` and `adsenseSlotInArticle`. Either one alone is not enough to render a slot.
 5. **SEO basics.** Keep descriptive titles and descriptions (the style guide enforces this), submit `sitemap.xml` to Google Search Console and Bing Webmaster Tools, add a default share image: commit a 1200×630 `static/images/og-default.png` and uncomment `images` in `hugo.toml` (reports can also set their own `cover.image`), and share each report on X and LinkedIn.
 6. **Quality > volume.** Google penalizes thin, mass-produced AI content. The deep-dive section, the real sources and the "why it matters" analysis are what make these pages worth ranking. Skim each report before it goes out, at least in the first weeks.
 

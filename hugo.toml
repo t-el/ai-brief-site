@@ -82,31 +82,20 @@ copyright = "© AI Brief Daily"
   [[params.socialIcons]]
     name = "rss"
     url = "/index.xml"
-  [[params.socialIcons]]
-    name = "github"
-    url = "https://github.com/t-el"
 
   [params.fuseOpts]
     keys = ["title", "summary", "content"]
 
-  # ── Monetization placeholders (all off until you fill them) ──
+  # Monetization: leave a field empty to hide that block completely (see README).
   [params.monetization]
-    # Google AdSense publisher id, e.g. "ca-pub-1234567890". Empty = no ad script.
     adsenseClient = ""
     adsenseSlotInArticle = ""
-    # Newsletter: paste your Beehiiv / Buttondown / ConvertKit / MailerLite form action URL.
     newsletterAction = ""
-    newsletterProvider = "Buttondown"
-    newsletterCTA = "Get the brief in your inbox every morning — free."
-    # Sponsor / affiliate block shown under each report
-    showSponsor = true
-    sponsorText = "Your product here — reach readers who follow AI daily."
-    sponsorURL = "/advertise/"
-    # Affiliate links (rendered as 'Tools we use'); add/remove freely.
-    [[params.monetization.affiliates]]
-      name = "Example AI tool"
-      url = "https://example.com/?ref=aibriefdaily"
-      blurb = "Placeholder — replace with a real affiliate link."
+    newsletterProvider = ""
+    newsletterCTA = ""
+    sponsorText = ""
+    sponsorURL = ""
+    # affiliates = []   # add [[params.monetization.affiliates]] entries when you have real links
 
 [menu]
   [[menu.main]]
@@ -129,6 +118,11 @@ copyright = "© AI Brief Daily"
     name = "Search"
     url = "/search/"
     weight = 40
+  [[menu.main]]
+    identifier = "advertise"
+    name = "Advertise"
+    url = "/advertise/"
+    weight = 45
   [[menu.main]]
     identifier = "about"
     name = "About"
