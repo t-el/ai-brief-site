@@ -21,12 +21,29 @@ Report writer ──commit content/reports/YYYY-MM-DD.md──▶ main ──▶
 | `scripts/publish-report.sh` | Validates a report, build-checks it, then commits and pushes it to `main`. |
 | `layouts/_partials/extend_head.html` | AdSense loader (only when configured). |
 | `layouts/_partials/extend_post_content.html` | Under each report: in-article ad slot, newsletter form, sponsor block, affiliate list. |
+| `layouts/_partials/get_cover.html`, `cover.html`, `templates/` | Heading images and Open Graph / Twitter share tags. |
+| `assets/images/cover-base.png` | Branded 1200×630 base used to generate a cover when a report has no custom image. |
+| `assets/fonts/` | Inter (SIL Open Font License) used to paint the title and date on auto covers. |
 | `assets/css/extended/monetize.css` | Styling for those blocks. |
 | `.github/workflows/deploy.yml` | Build and deploy to Pages on every push to `main`. |
 | `n8n/ai-brief-workflow.json` | Importable n8n workflow (option B). |
 | `n8n/build_workflow.py` | Regenerates the workflow JSON, e.g. after editing feeds, the prompt or `docs/report-style.md`. |
 
 Built in: RSS (`/index.xml`, plus one feed per section and tag), `sitemap.xml`, `robots.txt`, tags and categories, archive, search, reading time, share buttons, and clean permalinks (`/reports/2026/11/26/`).
+
+
+## Cover images
+
+Reports get a heading image (and matching `og:image` / `twitter:image`) automatically: Hugo paints the title and date onto `assets/images/cover-base.png` at build time. No front matter is required. To use your own image, add it under `static/images/` or `assets/images/` (no leading slash, so the `/ai-brief-site/` subpath stays intact) and set:
+
+```yaml
+cover:
+  image: "images/my-cover.png"
+  alt: "Short description"
+  caption: "Optional caption, shown on the report page only"
+  relative: false   # true if the file lives in the report's page bundle
+  hidden: false     # hides it on the post and in lists; share tags still use it
+```
 
 ## Setup
 
@@ -90,7 +107,7 @@ Settings live in `[params.monetization]` in `hugo.toml`. **The public site rende
 2. **Sponsorships.** Once you have a real offer, set `sponsorText` and `sponsorURL` (usually `/advertise/`). Until both are set, no sponsor box appears under reports. The Advertise page itself is always public and points to `elkarroumytaha@gmail.com`.
 3. **Affiliates.** Add real referral links as `[[params.monetization.affiliates]]` entries (`name`, `url`, `blurb`). They're marked `rel="sponsored"` and come with a disclosure line. Add none, and the “Tools we use” box stays off.
 4. **Display ads.** Apply for Google AdSense once you have about 20–30 quality posts, then set both `adsenseClient` and `adsenseSlotInArticle`. Either one alone is not enough to render a slot.
-5. **SEO basics.** Keep descriptive titles and descriptions (the style guide enforces this), submit `sitemap.xml` to Google Search Console and Bing Webmaster Tools, add a default share image: commit a 1200×630 `static/images/og-default.png` and uncomment `images` in `hugo.toml` (reports can also set their own `cover.image`), and share each report on X and LinkedIn.
+5. **SEO basics.** Keep descriptive titles and descriptions (the style guide enforces this), submit `sitemap.xml` to Google Search Console and Bing Webmaster Tools, and share each report on X and LinkedIn. Each report already gets a unique 1200×630 share image (see [Cover images](#cover-images)); set `cover.image` only when you want a custom one.
 6. **Quality > volume.** Google penalizes thin, mass-produced AI content. The deep-dive section, the real sources and the "why it matters" analysis are what make these pages worth ranking. Skim each report before it goes out, at least in the first weeks.
 
 ## Renaming the site

@@ -59,8 +59,8 @@ copyright = "© AI Brief Daily"
   description = "Deep, sourced daily reports on what actually happened in AI — and why it matters."
   keywords = ["AI news", "artificial intelligence", "LLM", "daily AI brief", "AI deep dive"]
   author = "AI Brief Daily"
-  # Default OpenGraph image: add a 1200x630 png at static/images/og-default.png, then uncomment:
-  # images = ["images/og-default.png"]
+  # Default share image for non-report pages is assets/images/cover-base.png (see README, Cover images).
+  # Reports get a generated cover automatically; override with cover.image in front matter.
   DateFormat = "January 2, 2006"
   defaultTheme = "auto"
   ShowReadingTime = true

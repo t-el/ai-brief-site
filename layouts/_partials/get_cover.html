@@ -1,0 +1,87 @@
+{{- /*
+  Resolve a report's heading image.
+
+  If front matter sets cover.image, use that (page bundle, assets/, or static/,
+  same lookup order as PaperMod). Otherwise, for reports, paint the title and
+  date onto assets/images/cover-base.png at build time.
+
+  Returns a map:
+    has       bool
+    resource  image resource when Hugo can process it, else false
+    url       absolute URL (includes the /ai-brief-site/ subpath)
+    alt       alt text
+    caption   optional caption (may contain markdown)
+*/ -}}
+{{- $page := . -}}
+{{- $alt := $page.Title | plainify -}}
+{{- $caption := "" -}}
+{{- $resource := false -}}
+{{- $url := "" -}}
+
+{{- with $page.Params.cover }}
+  {{- if .alt }}
+    {{- $alt = .alt | plainify -}}
+  {{- else if .caption }}
+    {{- $alt = .caption | plainify -}}
+  {{- end }}
+  {{- with .caption }}{{ $caption = . }}{{ end }}
+{{- end }}
+
+{{- if $page.Params.cover.image }}
+  {{- $img := $page.Params.cover.image -}}
+  {{- $cover := ($page.Resources.ByType "image").GetMatch (printf "*%s*" $img) -}}
+  {{- if not $cover }}
+    {{- $cover = (resources.ByType "image").GetMatch (printf "*%s*" $img) -}}
+  {{- end }}
+  {{- if $cover }}
+    {{- $resource = $cover -}}
+    {{- $url = $cover.Permalink -}}
+  {{- else if eq ($page.Params.cover.relative | default false) true }}
+    {{- $url = (path.Join $page.RelPermalink $img) | absURL -}}
+  {{- else }}
+    {{- $url = $img | absURL -}}
+  {{- end }}
+{{- else if and $page.IsPage (eq $page.Section "reports") }}
+  {{- $base := partial "get_cover_base.html" . -}}
+  {{- $fontTitle := false -}}
+  {{- $fontDate := false -}}
+  {{- with resources.Get "fonts/Inter-SemiBold.ttf.b64" }}
+    {{- $fontTitle = resources.FromString "fonts/Inter-SemiBold.ttf" (.Content | strings.TrimSpace | encoding.Base64Decode) -}}
+  {{- end }}
+  {{- with resources.Get "fonts/Inter-Regular.ttf.b64" }}
+    {{- $fontDate = resources.FromString "fonts/Inter-Regular.ttf" (.Content | strings.TrimSpace | encoding.Base64Decode) -}}
+  {{- end }}
+  {{- if and $base $fontTitle $fontDate }}
+    {{- $title := $page.Title | plainify -}}
+    {{- $date := $page.Date.Format "January 2, 2006" -}}
+    {{- $size := 48 -}}
+    {{- $tlen := len $title -}}
+    {{- if gt $tlen 90 }}{{ $size = 42 }}{{ end }}
+    {{- if gt $tlen 120 }}{{ $size = 36 }}{{ end }}
+    {{- $ls := math.Round (mul (float $size) 0.22) | int -}}
+    {{- $titleOpts := dict
+      "color"       "#F4EFE4"
+      "font"        $fontTitle
+      "size"        $size
+      "linespacing" $ls
+      "alignx"      "left"
+      "aligny"      "top"
+      "x"           72
+      "y"           200
+    -}}
+    {{- $dateOpts := dict
+      "color"  "#9AA3B5"
+      "font"   $fontDate
+      "size"   22
+      "alignx" "left"
+      "aligny" "top"
+      "x"      72
+      "y"      548
+    -}}
+    {{- $generated := $base | images.Filter (images.Text $title $titleOpts) (images.Text $date $dateOpts) -}}
+    {{- $resource = $generated -}}
+    {{- $url = $generated.Permalink -}}
+  {{- end }}
+{{- end }}
+
+{{- return (dict "has" (ne $url "") "resource" $resource "url" $url "alt" $alt "caption" $caption) -}}
