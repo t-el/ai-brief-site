@@ -55,9 +55,35 @@
     {{- $title := $page.Title | plainify -}}
     {{- $date := $page.Date.Format "January 2, 2006" -}}
     {{- $size := 48 -}}
-    {{- $tlen := len $title -}}
-    {{- if gt $tlen 90 }}{{ $size = 42 }}{{ end }}
+    {{- $tlen := strings.RuneCount $title -}}
+    {{- if gt $tlen 80 }}{{ $size = 40 }}{{ end }}
     {{- if gt $tlen 120 }}{{ $size = 36 }}{{ end }}
+    {{- /* Wrap so the title keeps the same 72px padding on the right as on the left.
+         images.Text wraps to the full image width and would run into the border. */ -}}
+    {{- $pad := 72 -}}
+    {{- $maxWidth := sub 1200 (mul $pad 2) -}}
+    {{- $maxChars := math.Floor (div (float $maxWidth) (mul (float $size) 0.55)) | int -}}
+    {{- $wrapped := "" -}}
+    {{- $line := "" -}}
+    {{- range (split $title " ") }}
+      {{- $word := . -}}
+      {{- $trial := $word -}}
+      {{- if $line }}{{ $trial = printf "%s %s" $line $word }}{{ end }}
+      {{- if gt (strings.RuneCount $trial) $maxChars }}
+        {{- if $line }}
+          {{- if $wrapped }}{{ $wrapped = printf "%s\n%s" $wrapped $line }}{{ else }}{{ $wrapped = $line }}{{ end }}
+          {{- $line = $word -}}
+        {{- else }}
+          {{- if $wrapped }}{{ $wrapped = printf "%s\n%s" $wrapped $word }}{{ else }}{{ $wrapped = $word }}{{ end }}
+          {{- $line = "" -}}
+        {{- end }}
+      {{- else }}
+        {{- $line = $trial -}}
+      {{- end }}
+    {{- end }}
+    {{- if $line }}
+      {{- if $wrapped }}{{ $wrapped = printf "%s\n%s" $wrapped $line }}{{ else }}{{ $wrapped = $line }}{{ end }}
+    {{- end }}
     {{- $ls := math.Round (mul (float $size) 0.22) | int -}}
     {{- $titleOpts := dict
       "color"       "#F4EFE4"
@@ -66,7 +92,7 @@
       "linespacing" $ls
       "alignx"      "left"
       "aligny"      "top"
-      "x"           72
+      "x"           $pad
       "y"           200
     -}}
     {{- $dateOpts := dict
@@ -75,10 +101,10 @@
       "size"   22
       "alignx" "left"
       "aligny" "top"
-      "x"      72
+      "x"      $pad
       "y"      548
     -}}
-    {{- $generated := $base | images.Filter (images.Text $title $titleOpts) (images.Text $date $dateOpts) -}}
+    {{- $generated := $base | images.Filter (images.Text $wrapped $titleOpts) (images.Text $date $dateOpts) -}}
     {{- $resource = $generated -}}
     {{- $url = $generated.Permalink -}}
   {{- end }}
